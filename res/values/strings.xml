@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">WSNDataReceiver</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+    <string name="welbt">立即体验</string>
+    <string name="clear_map">Clear</string>
+	<string name="reset_map">Reset</string>
+	<string-array name="layers_array">
+       	<item>@string/normal</item>
+        <item>@string/satellite</item>
+    </string-array>
+    <string name="normal">Normal</string>
+    <string name="satellite">Satellite</string>
+</resources>

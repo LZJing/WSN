@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/them_blue"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="设置查询参数"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="起始时间：" 
+        android:textSize="16dp"/> 
+        <EditText 
+            android:id="@+id/new_data_st"
+            android:layout_width="fill_parent"
+        	android:layout_height="wrap_content"
+        	android:text="2014-06-20 20:20:20"
+        	android:inputType="text"
+        	android:textSize="16dp"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="终止时间：" 
+        android:textSize="16dp"/> 
+        <EditText 
+            android:id="@+id/new_data_et"
+            android:layout_width="fill_parent"
+        	android:layout_height="wrap_content"
+        	android:inputType="text"
+        	android:text="2014-07-01 20:20:20"
+        	android:textSize="16dp"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+        <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="输入目标节点（以空格隔开）：" 
+        android:textSize="16dp"/> 
+        <EditText 
+            android:id="@+id/new_data_choseid"
+            android:layout_width="fill_parent"
+        	android:layout_height="wrap_content"
+        	android:inputType="text"
+        	android:hint="最多可查询3个节点(1-50)"
+        	android:textSize="16dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp" >
+	
+	        <Button
+	            android:id="@+id/new_data_set_bt_ok"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="30dp"
+	            android:layout_marginRight="20dp"
+	            android:layout_marginTop="10dp"
+	            android:layout_weight="1"
+	            android:background="@drawable/btn_new_data_click"
+	            android:minHeight="32dp"
+	            android:minWidth="48dp"
+	            android:text="确定"
+	            android:textColor="@color/white"
+	            android:textSize="14sp" />
+	
+	        <Button
+	            android:id="@+id/new_data_set_bt_cancel"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="20dp"
+	            android:layout_marginRight="30dp"
+	            android:layout_marginTop="10dp"
+	            android:layout_weight="1"
+	            android:background="@drawable/btn_new_data_click"
+	            android:minHeight="32dp"
+	            android:minWidth="48dp"
+	            android:text="取消"
+	            android:textColor="@color/white"
+	            android:textSize="14sp" />
+
+	    </LinearLayout>
+
+    
+
+</LinearLayout>
