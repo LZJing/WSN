@@ -23,8 +23,7 @@ public class WelcomeActivity extends Activity {
 
 			@Override
 			public boolean handleMessage(Message msg) {
-				if (!ToolKits
-						.fetchBooble(WelcomeActivity.this, IS_FIRST, false)) {
+				if (!ToolKits.fetchBooble(WelcomeActivity.this, IS_FIRST, false)) {
 					Intent intent = new Intent();
 					intent.setClass(WelcomeActivity.this,
 							WhatsnewActivity.class);

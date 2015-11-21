@@ -1,33 +1,44 @@
 package com.buaa.sensory.wsn_dr.activity;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.buaa.sensory.wsn_dr.R;
-import com.buaa.sensory.wsn_dr.entity.DataAndTime;
+import com.buaa.sensory.wsn_dr.entity.DateAndTime;
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.lidroid.xutils.view.annotation.event.OnClick;
 
-public class HisDataSetActivity extends Activity {
+public class HisDataSetActivity extends Activity implements OnClickListener{
 
 	String nodeId = "";
-	@ViewInject(R.id.new_data_st)
-	private EditText new_data_st;
-	@ViewInject(R.id.new_data_et)
-	private EditText new_data_et;
 	@ViewInject(R.id.new_data_choseid)
 	private EditText new_data_choseid;
 	@ViewInject(R.id.new_data_set_bt_ok)
 	private Button ok;
 	@ViewInject(R.id.new_data_set_bt_cancel)
 	private Button cancel;
+	private Button stDatePackerBtn;
+	private Button stTimePackerBtn;
+	private Button etDatePackerBtn;
+	private Button etTimePackerBtn;
+	
+	private Calendar calendar_st,calendar_et;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,14 +46,65 @@ public class HisDataSetActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.his_data_set);
 		ViewUtils.inject(this);
-		new_data_st.setText(DataAndTime.getAddedDateTime(60 * 24));// 向前查询一天
-		new_data_et.setText(DataAndTime.getSysCurDateTime());
+		initData();
+		stDatePackerBtn = (Button) findViewById(R.id.his_st_datepicker);
+		stTimePackerBtn = (Button) findViewById(R.id.his_st_timepicker);
+		
+		etDatePackerBtn = (Button) findViewById(R.id.his_et_datepicker);
+		etTimePackerBtn = (Button) findViewById(R.id.his_et_timepicker);
+		
+		stDatePackerBtn.setOnClickListener(this);
+		stTimePackerBtn.setOnClickListener(this);
+		etDatePackerBtn.setOnClickListener(this);
+		etTimePackerBtn.setOnClickListener(this);
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
+        etTimePackerBtn.setText(sdf.format(calendar_et.getTime()));
+        stTimePackerBtn.setText(sdf.format(calendar_st.getTime()));
+        
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+    	stDatePackerBtn.setText(sdf2.format(calendar_st.getTime()));
+    	etDatePackerBtn.setText(sdf2.format(calendar_et.getTime()));
 
+	}
+	private void initData() {
+		calendar_st =Calendar.getInstance();
+		
+		calendar_st.setTimeInMillis(calendar_st.getTimeInMillis()-1000*60*60*24);
+		calendar_et = Calendar.getInstance();
 	}
 
 	@OnClick({ R.id.new_data_set_bt_ok, R.id.new_data_set_bt_cancel })
 	public void onClick(View v) {
 		switch (v.getId()) {
+		case R.id.his_st_datepicker:
+			//点击后显示出日期选择器，默认的日期为caledar，当前日期
+            DatePickerDialog startDatePicker = new DatePickerDialog(this,onStartDateSetListener,
+                    calendar_st.get(Calendar.YEAR),
+                    calendar_st.get(Calendar.MONTH),
+                    calendar_st.get(Calendar.DAY_OF_MONTH));
+            startDatePicker.setTitle("请指定查询的起始日期");
+            startDatePicker.show();
+			break;
+		case R.id.his_st_timepicker:
+			TimePickerDialog timePickerDialog = new TimePickerDialog(this,onStartTimeSetListener,calendar_st.get(Calendar.HOUR_OF_DAY),calendar_st.get(Calendar.MINUTE),false);
+            timePickerDialog.setTitle("请指定查询的起始时间");
+            timePickerDialog.show();
+			break;
+		case R.id.his_et_datepicker:
+			//点击后显示出日期选择器，默认的日期为caledar，当前日期
+            DatePickerDialog endDatePicker = new DatePickerDialog(this,onEndDateSetListener,
+                    calendar_et.get(Calendar.YEAR),
+                    calendar_et.get(Calendar.MONTH),
+                    calendar_et.get(Calendar.DAY_OF_MONTH));
+            endDatePicker.setTitle("请指定查询的起始日期");
+            endDatePicker.show();
+			break;
+		case R.id.his_et_timepicker:
+			TimePickerDialog endTimePicker = new TimePickerDialog(this,onEndTimeSetListener,calendar_et.get(Calendar.HOUR_OF_DAY),calendar_et.get(Calendar.MINUTE),false);
+			endTimePicker.setTitle("请指定查询的起始时间");
+			endTimePicker.show();
+			break;
 		case R.id.new_data_set_bt_ok:
 			boolean input_error = false;
 			input_error = checkChoseId();
@@ -90,8 +152,8 @@ public class HisDataSetActivity extends Activity {
 			Intent intent = new Intent();
 			Bundle bundle = new Bundle();
 			bundle.putIntArray("nodeId_int", nodeId_int);
-			bundle.putString("st", new_data_st.getText().toString());
-			bundle.putString("et", new_data_et.getText().toString());
+			bundle.putLong("st", calendar_st.getTimeInMillis());
+			bundle.putLong("et", calendar_et.getTimeInMillis());
 			bundle.putString("nodeId", nodeId);
 			intent.putExtras(bundle);
 			setResult(3, intent);
@@ -115,4 +177,47 @@ public class HisDataSetActivity extends Activity {
 			return false;
 		}
 	}
+	
+    private DatePickerDialog.OnDateSetListener onStartDateSetListener = new DatePickerDialog.OnDateSetListener(){
+
+
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+        	Toast.makeText(HisDataSetActivity.this, "OnDateSetListener", Toast.LENGTH_SHORT).show();
+        	calendar_st.set(year, monthOfYear, dayOfMonth);
+        	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        	stDatePackerBtn.setText(sdf.format(calendar_st.getTime()));
+        }
+    };
+    private TimePickerDialog.OnTimeSetListener onStartTimeSetListener = new TimePickerDialog.OnTimeSetListener(){
+
+    	 @Override
+         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+             calendar_st.set(Calendar.HOUR_OF_DAY, hourOfDay);        //设置闹钟小时数
+             calendar_st.set(Calendar.MINUTE, minute);            //设置闹钟的分钟数
+             SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
+             stTimePackerBtn.setText(sdf.format(calendar_st.getTime()));
+         }
+    };
+    private DatePickerDialog.OnDateSetListener onEndDateSetListener = new DatePickerDialog.OnDateSetListener(){
+
+
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+        	Toast.makeText(HisDataSetActivity.this, "OnDateSetListener", Toast.LENGTH_SHORT).show();
+        	calendar_et.set(year, monthOfYear, dayOfMonth);
+        	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        	etDatePackerBtn.setText(sdf.format(calendar_st.getTime()));
+        }
+    };
+    private TimePickerDialog.OnTimeSetListener onEndTimeSetListener = new TimePickerDialog.OnTimeSetListener(){
+
+    	 @Override
+         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+             calendar_et.set(Calendar.HOUR_OF_DAY, hourOfDay);        //设置闹钟小时数
+             calendar_et.set(Calendar.MINUTE, minute);            //设置闹钟的分钟数
+             SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
+             etTimePackerBtn.setText(sdf.format(calendar_et.getTime()));
+         }
+    };
 }

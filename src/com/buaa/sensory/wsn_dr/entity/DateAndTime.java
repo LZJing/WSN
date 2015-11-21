@@ -3,7 +3,12 @@ package com.buaa.sensory.wsn_dr.entity;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class DataAndTime {
+public class DateAndTime {
+	
+	public static String getDateFormat(Long l){
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");       
+		return formatter.format(new Date(l));
+	}
 	/*
 	 * 查询当前系统时间，以字符串格式返回
 	 */

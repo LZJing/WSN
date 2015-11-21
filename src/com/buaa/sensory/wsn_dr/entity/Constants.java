@@ -3,6 +3,10 @@ package com.buaa.sensory.wsn_dr.entity;
 import com.amap.api.maps2d.model.LatLng;
 
 public class Constants {
+	
+	public static final String NEWDATA_REQUEST="http://192.168.1.221:8080/JavaWeb/nodedata/newdata";
+	public static final String HISDATA_REQUEST="http://192.168.1.221:8080/JavaWeb/nodedata/hisdata";
+	public static final String GPSDATA_REQUEST="http://192.168.1.221:8080/JavaWeb/nodedata/gpsdata";
 
 	public static final int ERROR = 1001;// 网络异常
 	public static final int ROUTE_START_SEARCH = 2000;
@@ -54,6 +58,7 @@ public class Constants {
 			getDegreelo(SW_longi));// 北航操场经纬度
 	public static final LatLng gym_test = new LatLng(getDegreela(testla),
 			getDegreelo(testlo));// 北航操场经纬度
+	
 
 	public static double getDegreela(double dm) {
 		double dd;

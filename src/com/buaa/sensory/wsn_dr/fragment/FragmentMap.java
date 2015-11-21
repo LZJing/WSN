@@ -1,11 +1,13 @@
 package com.buaa.sensory.wsn_dr.fragment;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -41,54 +43,59 @@ import com.amap.api.maps2d.model.LatLngBounds;
 import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.maps2d.model.MyLocationStyle;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.Request.Method;
+import com.android.volley.toolbox.StringRequest;
+import com.buaa.sensory.wsn_dr.MyApplication;
 import com.buaa.sensory.wsn_dr.R;
 import com.buaa.sensory.wsn_dr.activity.MapHelpActivity;
 import com.buaa.sensory.wsn_dr.entity.Constants;
-import com.buaa.sensory.wsn_dr.entity.GetDataClass;
-import com.buaa.sensory.wsn_dr.entity.NodeClass;
-import com.lidroid.xutils.ViewUtils;
-import com.lidroid.xutils.view.annotation.ViewInject;
-import com.lidroid.xutils.view.annotation.event.OnClick;
+import com.buaa.sensory.wsn_dr.model.GPSData;
+import com.buaa.sensory.wsn_dr.model.NodeData;
+import com.buaa.sensory.wsn_dr.model.ResponseGPSMsg;
+import com.buaa.sensory.wsn_dr.model.ResponseMsg;
+import com.google.gson.Gson;
 
 public class FragmentMap extends Fragment implements OnMarkerClickListener,
 		OnInfoWindowClickListener, OnMapLoadedListener, OnClickListener,
-		InfoWindowAdapter, LocationSource, AMapLocationListener,
-		OnItemSelectedListener {
+		InfoWindowAdapter,OnItemSelectedListener,LocationSource,AMapLocationListener {
 	private MarkerOptions markerOption;
 	// private TextView markerText;
 
-	private AMap aMap;
+	private MapView mapView;									//基本地图
+	private AMap aMap;											//基本地图
 
 	private LatLng latlng = new LatLng(36.061, 103.834);
-	private OnLocationChangedListener mListener;// 定位小蓝点监听
-	private LocationManagerProxy mAMapLocationManager;// 定位小蓝点管理
-	@ViewInject(R.id.but_help)
 	private ImageView but_help;
-	// @ViewInject(R.id.map)
-	private MapView mapView;
-	@ViewInject(R.id.clearMap)
+	
 	private Button clearMap;
-	@ViewInject(R.id.resetMap)
 	private Button resetMap;
-	@ViewInject(R.id.layers_spinner)
 	private Spinner spinner;
+	
+	List<NodeData> list;
+	private OnLocationChangedListener mListener;				//定位
+	private LocationManagerProxy mAMapLocationManager;			//定位
 
-	NodeClass[] nodes;
-	int[] nodeId_int = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-			17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,
-			34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50 };
+
+
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View view = LayoutInflater.from(getActivity()).inflate(
-				R.layout.frag_map, null);
-		ViewUtils.inject(this, view);
-		mapView = (MapView) view.findViewById(R.id.map);
-		mapView.onCreate(savedInstanceState); // 此方法必须重写
-		initMap();
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
+		View view = LayoutInflater.from(getActivity()).inflate(R.layout.frag_map, null);
+		mapView = (MapView) view.findViewById(R.id.map);		//基本地图
+		mapView.onCreate(savedInstanceState); 					//基本地图， 此方法必须重写
+		but_help = (ImageView) view.findViewById(R.id.but_help);
+		clearMap = (Button) view.findViewById(R.id.clearMap);
+		resetMap = (Button) view.findViewById(R.id.resetMap);
+		spinner = (Spinner) view.findViewById(R.id.layers_spinner);
+		clearMap.setOnClickListener(this);
+		resetMap.setOnClickListener(this);
+		but_help.setOnClickListener(this);
+		
+		initMap();												//基本地图
 		init();
-		Log.i("Tag", "FragmentMap");
 		return view;
 	}
 
@@ -101,38 +108,28 @@ public class FragmentMap extends Fragment implements OnMarkerClickListener,
 
 		}
 	}
-
 	@Override
 	public void onDestroy() {
-		// TODO Auto-generated method stub
 		super.onDestroy();
 		mapView.onDestroy();
 
 	}
-
 	@Override
 	public void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
 		mapView.onPause();
-		deactivate();// 关定位
+		deactivate();
 	}
-
 	@Override
 	public void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		mapView.onResume();
 	}
-
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		// TODO Auto-generated method stub
 		super.onSaveInstanceState(outState);
 		mapView.onSaveInstanceState(outState);
 	}
-
-	@OnClick({ R.id.but_help, R.id.clearMap, R.id.resetMap })
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.but_help:
@@ -146,7 +143,6 @@ public class FragmentMap extends Fragment implements OnMarkerClickListener,
 		case R.id.resetMap:
 			if (aMap != null) {
 				aMap.clear();
-				// addMarkersToMap();
 				setUpLocate();
 				setUpMarker();
 			}
@@ -164,9 +160,7 @@ public class FragmentMap extends Fragment implements OnMarkerClickListener,
 	private void init() {
 		clearMap.setOnClickListener(this);
 		resetMap.setOnClickListener(this);
-		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-				getActivity(), R.array.layers_array,
-				android.R.layout.simple_spinner_item);
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.layers_array,android.R.layout.simple_spinner_item);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
@@ -190,8 +184,9 @@ public class FragmentMap extends Fragment implements OnMarkerClickListener,
 		aMap.setLocationSource(this);// 设置定位监听
 		aMap.getUiSettings().setMyLocationButtonEnabled(true);// 设置默认定位按钮是否显示
 		aMap.setMyLocationEnabled(true);// 设置为true表示显示定位层并可触发定位，false表示隐藏定位层并不可触发定位，默认是false
-
+	   // aMap.setMyLocationType()
 	}
+
 
 	/**
 	 * 定位Marker，设置一些amap的属性---------------------
@@ -202,102 +197,40 @@ public class FragmentMap extends Fragment implements OnMarkerClickListener,
 		aMap.setOnMarkerClickListener(this);// 设置点击marker事件监听器
 		aMap.setOnInfoWindowClickListener(this);// 设置点击infoWindow事件监听器
 		aMap.setInfoWindowAdapter(this);// 设置自定义InfoWindow样式
-		askData();
+		int[] ids = new int[50];
+		ids[0] = 0;
+		for (int i = 1; i < ids.length; i++) {
+			ids[i] =ids[i-1]+1;
+		}
+		try {
+			requestAllNewData("0", ids);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		// addMarkersToMap();// 往地图上添加marker
 	}
 
-	private void askData() {
-		new Thread() {
-
-			@Override
-			public void run() {
-				try {
-					// GetDataClass dgc = new GetDataClass();
-					nodes = GetDataClass.requestAllNewData(
-							"2014-03-20 00:00:00", nodeId_int);
-					if (nodes != null) {
-						handler.sendEmptyMessage(0);
-
-					} else {
-						handler.sendEmptyMessage(1);
-					}
-				} catch (Exception e) {
-					Log.e("Tag", "進入socket異常");
-					handler.sendEmptyMessage(1);
-					e.printStackTrace();
-				}
-				// 消息传送：当本线程执行完时，发送消息，主线程handle再执行相应操作
-
-			}
-
-		}.start();
-	}
-
-	// 有消息传送出来时，执行主线程操作
-	private Handler handler = new Handler() {
-
-		@Override
-		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
-			switch (msg.what) {
-			case 0:
-				Log.v("Tag", "case 0");
-				Log.v("Tag", nodes[0].getTime());
-				addMarkersToMap();
-
-				break;
-			case 1:
-				Log.v("Tag", "case 1");
-				Toast.makeText(getActivity(), "连接失败，请检查网络或服务器",
-						Toast.LENGTH_LONG).show();
-				break;
-			default:
-				break;
-			}
-
-		}
-
-	};
+	
 
 	/**
 	 * 在地图上添加marker
 	 */
-	private void addMarkersToMap() {
+	private void addMarkersToMap(GPSData data,NodeData nodeData) {
 		double GPSx;
 		double GPSy;
-		for (int i = 0; i < nodes.length; i++) {
-			GPSx = Constants.getDegreelo(nodes[i].getGPSLong());
-			GPSy = Constants.getDegreela(nodes[i].getGPSLati());
-			LatLng latlng = new LatLng(GPSy, GPSx);
-			aMap.addMarker(new MarkerOptions()
-					.anchor(0.5f, 1f)
-					.position(latlng)
-					.title("" + nodes[i].getId() + "号节点")
-					.icon(BitmapDescriptorFactory
-							.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-					.snippet("ID:" + nodes[i].getId()).draggable(true));
-		}
+		GPSx = Constants.getDegreelo(data.getGpsLo());
+		GPSy = Constants.getDegreela(data.getGpsLa());
+		LatLng latlng = new LatLng(GPSy, GPSx);
+		aMap.addMarker(new MarkerOptions()
+				.anchor(0.5f, 1f)
+				.position(latlng)
+				.title("" + nodeData.getNodeId() + "号节点")
+				.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+				.snippet("ID:" + nodeData.getNodeId()).draggable(true));
 
 	}
 
-	/**
-	 * 此方法已经废弃
-	 */
-	@Override
-	public void onLocationChanged(Location arg0) {
-	}
-
-	@Override
-	public void onProviderDisabled(String arg0) {
-	}
-
-	@Override
-	public void onProviderEnabled(String arg0) {
-	}
-
-	@Override
-	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
-	}
+	
 
 	@Override
 	public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
@@ -307,49 +240,9 @@ public class FragmentMap extends Fragment implements OnMarkerClickListener,
 		}
 	}
 
-	/**
-	 * 定位成功后回调函数
-	 */
-	@Override
-	public void onLocationChanged(AMapLocation arg0) {
-		if (mListener != null && arg0 != null) {
-			mListener.onLocationChanged(arg0);// 显示系统小蓝点
-		}
+	
 
-	}
-
-	/**
-	 * 激活定位
-	 */
-	@Override
-	public void activate(OnLocationChangedListener listener) {
-		mListener = listener;
-		if (mAMapLocationManager == null) {
-			mAMapLocationManager = LocationManagerProxy
-					.getInstance(getActivity());
-			/*
-			 * mAMapLocManager.setGpsEnable(false);
-			 * 1.0.2版本新增方法，设置true表示混合定位中包含gps定位，false表示纯网络定位，默认是true Location
-			 * API定位采用GPS和网络混合定位方式
-			 * ，第一个参数是定位provider，第二个参数时间最短是2000毫秒，第三个参数距离间隔单位是米，第四个参数是定位监听者
-			 */
-			mAMapLocationManager.requestLocationUpdates(
-					LocationProviderProxy.AMapNetwork, 2000, 10, this);
-		}
-	}
-
-	/**
-	 * 停止定位
-	 */
-	@Override
-	public void deactivate() {
-		mListener = null;
-		if (mAMapLocationManager != null) {
-			mAMapLocationManager.removeUpdates(this);
-			mAMapLocationManager.destory();
-		}
-		mAMapLocationManager = null;
-	}
+	
 
 	/**
 	 * 选择矢量地图和卫星地图事件的响应
@@ -432,12 +325,158 @@ public class FragmentMap extends Fragment implements OnMarkerClickListener,
 				.include(Constants.gym_NE).include(Constants.gym_SW).build();
 		aMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 10));
 	}
+	
+	/**
+	 * 获取某条数据对应的GPS数据
+	 * @param st
+	 * @param nodeId
+	 * @return
+	 * @throws Exception
+	 */
+	public void requestGPSData(final NodeData nodeData) throws Exception {
+		StringRequest stringRequest = new StringRequest(Method.POST,Constants.GPSDATA_REQUEST,
+				new Response.Listener<String>() {
+					@Override
+					public void onResponse(String response) {
+						//UI线程处理数据
+						Gson gson = new Gson();
+						ResponseGPSMsg responseGPSMsg = gson.fromJson(response, ResponseGPSMsg.class);
+						GPSData data = responseGPSMsg.getData();
+						addMarkersToMap(data,nodeData);
+						
+					}
+				}, new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						Log.e("TAG", error.getMessage(), error);
+					}
+				}){
+			@Override
+			protected Map<String, String> getParams() throws AuthFailureError {
+				Map<String,String> map = new HashMap<String, String>();
+				map.put("gpsId",String.valueOf(nodeData.getGpsId()));
+				return map;
+			}
+		};
+		stringRequest.setTag("requestGPSData");
+		MyApplication.getHttpQueues().add(stringRequest);
+	}
+	
+	/**
+	 * 获取指定节点的最新数据
+	 * @param st
+	 * @param nodeId
+	 * @return
+	 * @throws Exception
+	 */
+	public void requestAllNewData(final String st, final int[] nodeId) throws Exception {
+		StringRequest stringRequest = new StringRequest(Method.POST,Constants.NEWDATA_REQUEST,
+				new Response.Listener<String>() {
+					@Override
+					public void onResponse(String response) {
+						//UI线程处理数据
+						Gson gson = new Gson();
+						ResponseMsg responseMsg = gson.fromJson(response, ResponseMsg.class);
+						list=responseMsg.getData();
+						for (int i = 0; i < list.size(); i++) {
+							try {
+								requestGPSData(list.get(i));
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				}, new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						Log.e("TAG", error.getMessage(), error);
+					}
+				}){
+			@Override
+			protected Map<String, String> getParams() throws AuthFailureError {
+				Map<String,String> map = new HashMap<String, String>();
+				StringBuffer sb = new StringBuffer();
+				for (int i = 0; i < nodeId.length; i++) {
+					if(i!=0){
+						sb.append("#"+nodeId[i]);
+					}else{
+						sb.append(nodeId[i]);
+					}
+				}
+				map.put("nodeIds",new String(sb));
+				map.put("startTime", st);
+				return map;
+			}
+		};
+		stringRequest.setTag("requestAllNewData");
+		MyApplication.getHttpQueues().add(stringRequest);
+	}
+
+
+	
+
+
+	/**
+	 * 激活定位
+	 */
+	@Override
+	public void activate(OnLocationChangedListener listener) {
+		mListener = listener;
+		if (mAMapLocationManager == null) {
+			mAMapLocationManager = LocationManagerProxy.getInstance(getActivity());
+			/*
+			 * mAMapLocManager.setGpsEnable(false);
+			 * 1.0.2版本新增方法，设置true表示混合定位中包含gps定位，false表示纯网络定位，默认是true Location
+			 * API定位采用GPS和网络混合定位方式
+			 * ，第一个参数是定位provider，第二个参数时间最短是2000毫秒，第三个参数距离间隔单位是米，第四个参数是定位监听者
+			 */
+			mAMapLocationManager.requestLocationData(LocationProviderProxy.AMapNetwork, 2000, 10, this);
+		}
+	}
+
+	/**
+	 * 停止定位
+	 */
+	@Override
+	public void deactivate() {
+		mListener = null;
+		if (mAMapLocationManager != null) {
+			mAMapLocationManager.removeUpdates(this);
+			mAMapLocationManager.destroy();
+		}
+		mAMapLocationManager = null;
+	}
 
 	@Override
-	public void setMenuVisibility(boolean menuVisible) {
-		super.setMenuVisibility(menuVisible);
-		if (this.getView() != null)
-			this.getView()
-					.setVisibility(menuVisible ? View.VISIBLE : View.GONE);
+	public void onLocationChanged(Location location) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * 定位成功后回调函数
+	 */
+	@Override
+	public void onLocationChanged(AMapLocation aLocation) {
+		if (mListener != null && aLocation != null) {
+			mListener.onLocationChanged(aLocation);// 显示系统小蓝点
+		}
 	}
 }

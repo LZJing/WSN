@@ -73,6 +73,20 @@
         	android:layout_width="1dip"
       		android:layout_height="fill_parent"
         	android:background ="@color/grid_frame"/>
+			
+			<TextView
+               android:id="@+id/humidity"
+               android:layout_width="60dp"
+               android:layout_height="wrap_content"
+               android:gravity="center_vertical|center_horizontal"
+               android:padding="2dp"
+               android:textColor="@color/black"
+               android:textSize="20px" />
+
+			<View
+        	android:layout_width="1dip"
+      		android:layout_height="fill_parent"
+        	android:background ="@color/grid_frame"/>
 
            <Button
                android:id="@+id/view_btn"
@@ -81,13 +95,14 @@
                android:layout_gravity="center_vertical|center_horizontal"
                android:layout_marginLeft="5dp"
                android:layout_marginRight="5dp"
+               android:layout_marginTop="3dp"
+               android:layout_marginBottom="3dp"
                android:background="@drawable/btn_new_data_click"
-               android:padding="5dp"
+               android:padding="3dp"
                android:text="详细"
+               android:layout_weight="1"
                android:textColor="@color/white"
                android:textSize="14sp" />
-
-
            <View
                android:layout_width="1dip"
                android:layout_height="fill_parent"
@@ -97,7 +112,6 @@
        </LinearLayout>
 
        <View
-           android:id="@+id/grayline"
            android:layout_width="fill_parent"
            android:layout_height="1dp"
            android:background="@color/grid_frame" />

@@ -2,11 +2,9 @@ package com.buaa.sensory.wsn_dr.activity;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,25 +15,16 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
 import com.buaa.sensory.wsn_dr.R;
-import com.buaa.sensory.wsn_dr.entity.DataAndTime;
-import com.lidroid.xutils.ViewUtils;
-import com.lidroid.xutils.view.annotation.ViewInject;
-import com.lidroid.xutils.view.annotation.event.OnClick;
+import com.buaa.sensory.wsn_dr.entity.DateAndTime;
 
 public class NewDataSetActivity extends Activity implements OnClickListener{
 
 	String nodeId = "";
-	@ViewInject(R.id.new_data_st)
-	private EditText new_data_st;
-	@ViewInject(R.id.new_data_choseid)
+
 	private EditText new_data_choseid;
-	@ViewInject(R.id.new_data_set_bt_ok)
 	private Button ok;
-	@ViewInject(R.id.new_data_set_bt_cancel)
-	private Button cancel;
-	
+	private Button cancle;
 	private Button datePackerBtn;
 	private Button timePackerBtn;
 	
@@ -45,22 +34,34 @@ public class NewDataSetActivity extends Activity implements OnClickListener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.new_data_set);
+		initData();
+		initView();
+	}
+	
+
+	private void initData() {
+		calendar =Calendar.getInstance();
+		calendar.setTimeInMillis(calendar.getTimeInMillis()-1000*60*60*24);
+	}
+
+
+
+	private void initView() {
 		datePackerBtn = (Button) findViewById(R.id.new_datepicker);
 		timePackerBtn = (Button) findViewById(R.id.new_timepicker);
 		timePackerBtn.setOnClickListener(this);
-		datePackerBtn.setOnClickListener(this);
-		
-		ViewUtils.inject(this);
-		calendar =Calendar.getInstance();
-		calendar.setTimeInMillis(calendar.getTimeInMillis()-1000*60*60*24);
+		datePackerBtn.setOnClickListener(this);	
+		new_data_choseid = (EditText) findViewById(R.id.new_data_choseid);
+		ok=(Button) findViewById(R.id.new_data_set_bt_ok);
+		cancle = (Button) findViewById(R.id.new_data_set_bt_cancel);
+		ok.setOnClickListener(this);
+		cancle.setOnClickListener(this);
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
     	datePackerBtn.setText(sdf1.format(calendar.getTime()));
     	SimpleDateFormat sdf2 = new SimpleDateFormat("hh:mm");
-    	 timePackerBtn.setText(sdf2.format(calendar.getTime()));
-
+    	timePackerBtn.setText(sdf2.format(calendar.getTime()));	
 	}
 
-	@OnClick({ R.id.new_data_set_bt_ok, R.id.new_data_set_bt_cancel })
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.new_datepicker:
@@ -101,12 +102,10 @@ public class NewDataSetActivity extends Activity implements OnClickListener{
 			String[] nodeIds = nodeId.split(" ");
 			int[] nodeId_int = new int[nodeIds.length];
 			for (int i = 0; i < nodeIds.length; i++) {
-				if (0 <= Integer.parseInt(nodeIds[i])
-						&& Integer.parseInt(nodeIds[i]) <= 50)
+				if (0 <= Integer.parseInt(nodeIds[i]) && Integer.parseInt(nodeIds[i]) <= 50)
 					nodeId_int[i] = Integer.parseInt(nodeIds[i]);
 				else {
-					Toast.makeText(this, "输入有误，节点ID范围1-50", Toast.LENGTH_SHORT)
-							.show();
+					Toast.makeText(this, "输入有误，节点ID范围1-50", Toast.LENGTH_SHORT).show();
 					input_error = true;
 					break;
 				}
@@ -118,7 +117,7 @@ public class NewDataSetActivity extends Activity implements OnClickListener{
 			Bundle bundle = new Bundle();
 			bundle.putIntArray("nodeId_int", nodeId_int);
 			bundle.putLong("st", calendar.getTimeInMillis());
-			bundle.putString("et", DataAndTime.getSysCurDateTime());
+			bundle.putLong("et", System.currentTimeMillis());
 			bundle.putString("nodeId", nodeId);
 			intent.putExtras(bundle);
 			setResult(2, intent);

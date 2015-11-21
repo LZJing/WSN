@@ -21,41 +21,71 @@
             android:textSize="20sp" />
 
     </LinearLayout>
+        <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="设置起始时间" 
+        android:textSize="20sp"
+        android:textColor="@color/black"/> 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:orientation="horizontal" >
+        <Button 
+            android:id="@+id/his_st_datepicker"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="2014-06-20"
+            android:textSize="20sp"
+            />
+        <Button 
+            android:id="@+id/his_st_timepicker"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="20:20"
+            android:textSize="20sp"
+            />
+        
+    </LinearLayout>
         <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="起始时间：" 
-        android:textSize="16dp"/> 
-        <EditText 
-            android:id="@+id/new_data_st"
-            android:layout_width="fill_parent"
-        	android:layout_height="wrap_content"
-        	android:text="2014-06-20 20:20:20"
-        	android:inputType="text"
-        	android:textSize="16dp"/>
-    </LinearLayout>
+        android:padding="10dp"
+        android:text="设置终止时间" 
+        android:textSize="20sp"
+        android:textColor="@color/black"/> 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:orientation="horizontal" >
-        <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="终止时间：" 
-        android:textSize="16dp"/> 
-        <EditText 
-            android:id="@+id/new_data_et"
+        <Button 
+            android:id="@+id/his_et_datepicker"
             android:layout_width="fill_parent"
-        	android:layout_height="wrap_content"
-        	android:inputType="text"
-        	android:text="2014-07-01 20:20:20"
-        	android:textSize="16dp"/>
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="2014-06-20"
+            android:textSize="20sp"
+            />
+        <Button 
+            android:id="@+id/his_et_timepicker"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="20:20"
+            android:textSize="20sp"
+            />
+        
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -24,8 +24,14 @@ public class MainActivity extends FragmentActivity implements OnCheckedChangeLis
 		bottom_bar = (RadioGroup) findViewById(R.id.buttom_bar);
 		layout_content = (FrameLayout) findViewById(R.id.layout_content);
 		bottom_bar.setOnCheckedChangeListener(this);
-		bottom_bar.check(R.id.radio0);
+		
+		Fragment fragment = (Fragment) fragments.instantiateItem(layout_content, 0);
+		fragments.setPrimaryItem(layout_content, 0, fragment);
+		fragments.finishUpdate(layout_content);
+		
+
 	}
+
 	
 	@Override
 	public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -47,6 +53,7 @@ public class MainActivity extends FragmentActivity implements OnCheckedChangeLis
 		default:
 			break;
 		}
+
 		Fragment fragment = (Fragment) fragments.instantiateItem(layout_content, index);
 		fragments.setPrimaryItem(layout_content, 0, fragment);
 		fragments.finishUpdate(layout_content);

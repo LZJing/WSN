@@ -160,7 +160,7 @@
 	    <GridView
 	        android:id="@+id/gv_new_data"
 	        android:layout_width="match_parent"
-	        android:layout_height="290dp"
+	        android:layout_height="match_parent"
 	        android:layout_gravity="center_vertical|center_horizontal"
 	        android:numColumns="1"
 	        android:padding="5dp"
@@ -231,7 +231,7 @@
 	    <GridView
 	        android:id="@+id/gv_his_data"
 	        android:layout_width="match_parent"
-	        android:layout_height="290dp"
+	        android:layout_height="match_parent"
 	        android:layout_gravity="center_vertical|center_horizontal"
 	        android:numColumns="1"
 	        android:padding="5dp"
@@ -241,6 +241,13 @@
 	    
 
     </LinearLayout>
-    
+
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone" />
 
 </LinearLayout>
