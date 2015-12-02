@@ -1,4 +1,6 @@
-package com.buaa.sensory.wsn_dr.entity;
+package com.buaa.sensory.wsn_dr.view;
+
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -8,13 +10,16 @@ import android.util.Log;
 import android.view.View;
 
 import com.buaa.sensory.wsn_dr.R;
+import com.buaa.sensory.wsn_dr.entity.NodeClass;
+import com.buaa.sensory.wsn_dr.entity.Point;
+import com.buaa.sensory.wsn_dr.model.NodeData;
 
 public class TopoView extends View {
-	Context context_topo;
-	NodeClass[] nodes_topo = null;
+	Context context_topo;	
+	List<NodeData> list = null;
 
-	public void setNodes_topo(NodeClass[] nodes_topo) {
-		this.nodes_topo = nodes_topo;
+	public void setNodes_topo(List<NodeData> list){
+		this.list = list;
 	}
 
 	Canvas canvas_topo;
@@ -28,8 +33,9 @@ public class TopoView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		// super.onDraw(canvas);
+		clean_canvas(canvas);
 		try {
-			if (nodes_topo != null) {
+			if (list != null) {
 
 				Log.v("Tag", "onDraw");
 				int height = this.getHeight();
@@ -40,19 +46,19 @@ public class TopoView extends View {
 				// 绘制一跳节点
 				int one_hop = 0;
 
-				for (int i = 0; i < nodes_topo.length; i++) {
-					if (nodes_topo[i].getTurnnode() == 0) {
+				for (int i = 0; i < list.size(); i++) {
+					if(list.get(i).getParentId() == 0)
 						one_hop++;
-					}
-
 				}
 				Log.v("Tag", "" + one_hop);
 				int num = 0;
-				for (int i = 0; i < nodes_topo.length; i++) {
-					if (nodes_topo[i].getTurnnode() == 0) {
-						draw_onehop(canvas, one_hop, num, nodes_topo[i].getId());
+
+				for (int i = 0; i<list.size(); i++) {
+					if(list.get(i).getParentId() == 0){
+						draw_onehop(canvas, one_hop, num, list.get(i).getNodeId());
 						num++;
 					}
+					
 				}
 				// 绘制路由
 				Paint paint1 = new Paint();
@@ -63,8 +69,6 @@ public class TopoView extends View {
 				paint1.setTextSize(22);
 				canvas.drawText("网关", width / 2 - 20, height / 2 + 5, paint1);
 
-			} else {
-				clean_canvas(canvas);
 			}
 		} catch (Exception e) {
 			Log.e("Tag", "画图时异常");
@@ -95,15 +99,15 @@ public class TopoView extends View {
 		can.drawLine(width / 2, height / 2, point.getX(), point.getY(), paint2);
 
 		int two_hop = 0;
-		for (int i = 0; i < nodes_topo.length; i++) {
-			if (nodes_topo[i].getTurnnode() == id) {
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i).getParentId() == id) {
 				two_hop++;
 			}
 
 		}
 		int num_two_hop = 0;
-		for (int i = 0; i < nodes_topo.length; i++) {
-			if (nodes_topo[i].getTurnnode() == id) {
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i).getParentId() == id) {
 				Point point_two = new Point(point.getX(), point.getY(),
 						two_hop, num_two_hop, 80);
 				Paint paint3 = new Paint();
@@ -117,7 +121,7 @@ public class TopoView extends View {
 				can.drawCircle(point_two.getX(), point_two.getY(), 16, paint3);
 				paint3.setColor(getResources().getColor(R.color.white));
 				paint3.setTextSize(16);
-				can.drawText(Integer.toString(nodes_topo[i].getId()),
+				can.drawText(Integer.toString(list.get(i).getNodeId()),
 						point_two.getX() - 5, point_two.getY() + 6, paint3);
 				num_two_hop++;
 			}

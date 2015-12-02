@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import com.buaa.sensory.wsn_dr.R;
-import com.buaa.sensory.wsn_dr.entity.DateAndTime;
 
 public class NewDataSetActivity extends Activity implements OnClickListener{
 

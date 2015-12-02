@@ -16,22 +16,14 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
 import com.buaa.sensory.wsn_dr.R;
-import com.buaa.sensory.wsn_dr.entity.DateAndTime;
-import com.lidroid.xutils.ViewUtils;
-import com.lidroid.xutils.view.annotation.ViewInject;
-import com.lidroid.xutils.view.annotation.event.OnClick;
 
 public class HisDataSetActivity extends Activity implements OnClickListener{
 
 	String nodeId = "";
-	@ViewInject(R.id.new_data_choseid)
 	private EditText new_data_choseid;
-	@ViewInject(R.id.new_data_set_bt_ok)
 	private Button ok;
-	@ViewInject(R.id.new_data_set_bt_cancel)
-	private Button cancel;
+	private Button cancle;
 	private Button stDatePackerBtn;
 	private Button stTimePackerBtn;
 	private Button etDatePackerBtn;
@@ -45,7 +37,6 @@ public class HisDataSetActivity extends Activity implements OnClickListener{
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.his_data_set);
-		ViewUtils.inject(this);
 		initData();
 		stDatePackerBtn = (Button) findViewById(R.id.his_st_datepicker);
 		stTimePackerBtn = (Button) findViewById(R.id.his_st_timepicker);
@@ -53,10 +44,17 @@ public class HisDataSetActivity extends Activity implements OnClickListener{
 		etDatePackerBtn = (Button) findViewById(R.id.his_et_datepicker);
 		etTimePackerBtn = (Button) findViewById(R.id.his_et_timepicker);
 		
+		ok = (Button) findViewById(R.id.new_data_set_bt_ok);
+		cancle = (Button) findViewById(R.id.new_data_set_bt_cancel);
+		
+		new_data_choseid = (EditText) findViewById(R.id.new_data_choseid);
+		
 		stDatePackerBtn.setOnClickListener(this);
 		stTimePackerBtn.setOnClickListener(this);
 		etDatePackerBtn.setOnClickListener(this);
 		etTimePackerBtn.setOnClickListener(this);
+		ok.setOnClickListener(this);
+		cancle.setOnClickListener(this);
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
         etTimePackerBtn.setText(sdf.format(calendar_et.getTime()));
@@ -74,7 +72,6 @@ public class HisDataSetActivity extends Activity implements OnClickListener{
 		calendar_et = Calendar.getInstance();
 	}
 
-	@OnClick({ R.id.new_data_set_bt_ok, R.id.new_data_set_bt_cancel })
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.his_st_datepicker:

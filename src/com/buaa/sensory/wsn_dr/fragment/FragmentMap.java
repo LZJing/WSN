@@ -479,4 +479,12 @@ public class FragmentMap extends Fragment implements OnMarkerClickListener,
 			mListener.onLocationChanged(aLocation);// 显示系统小蓝点
 		}
 	}
+	@Override
+	public void setMenuVisibility(boolean menuVisible) {
+		// TODO Auto-generated method stub
+		super.setMenuVisibility(menuVisible);
+		if(this.getView()!=null){
+			this.getView().setVisibility(menuVisible?View.VISIBLE:View.GONE);
+		}
+	}
 }

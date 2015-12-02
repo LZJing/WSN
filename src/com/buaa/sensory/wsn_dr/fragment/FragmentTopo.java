@@ -1,56 +1,104 @@
 package com.buaa.sensory.wsn_dr.fragment;
 
+import java.util.HashMap;
+import java.util.Map;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.Spinner;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.Request.Method;
+import com.android.volley.toolbox.StringRequest;
+import com.buaa.sensory.wsn_dr.MyApplication;
 import com.buaa.sensory.wsn_dr.R;
 import com.buaa.sensory.wsn_dr.activity.DataHelpActivity;
-import com.buaa.sensory.wsn_dr.activity.TopoSetActivity;
-import com.buaa.sensory.wsn_dr.entity.GetDataClass;
-import com.buaa.sensory.wsn_dr.entity.NodeClass;
-import com.buaa.sensory.wsn_dr.entity.TopoView;
-import com.lidroid.xutils.ViewUtils;
-import com.lidroid.xutils.view.annotation.ViewInject;
-import com.lidroid.xutils.view.annotation.event.OnClick;
+import com.buaa.sensory.wsn_dr.entity.Constants;
+import com.buaa.sensory.wsn_dr.model.ResponseMsg;
+import com.buaa.sensory.wsn_dr.view.TopoView;
+import com.google.gson.Gson;
 
-public class FragmentTopo extends Fragment {
-	@ViewInject(R.id.but_help_topo)
+public class FragmentTopo extends Fragment implements OnClickListener{
 	private ImageView but_help_topo;
-	@ViewInject(R.id.but_set_topo)
-	private ImageView but_set_topo;
-	@ViewInject(R.id.topo_view)
 	private TopoView topo_view;
-	@ViewInject(R.id.info_display)
-	private TextView info_display;
-
-	// 更新参数
-	private boolean isauto = false;
-	private int update_time = 10;
-	private String st = "2014-03-20 00:00:00";
+	private Spinner spinner;
+	
+	// 更新时间
+	private int st = 0;
 	// 停止参数
 	boolean run = true;
-	// 保存数据
-	NodeClass[] nodes_topo = null;
-
+	
+	int[] ids ={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
+		
+		View view = LayoutInflater.from(getActivity()).inflate(R.layout.frag_topo, null);
+		but_help_topo = (ImageView) view.findViewById(R.id.but_help_topo);
+		but_help_topo.setOnClickListener(this);
+		spinner = (Spinner) view.findViewById(R.id.spinner_topo);
+		topo_view = (TopoView) view.findViewById(R.id.topo_view);
+		spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
-		View view = LayoutInflater.from(getActivity()).inflate(
-				R.layout.frag_topo, null);
-		ViewUtils.inject(this, view);
-		info_display.setVisibility(View.GONE);
-		initGetData();
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				if(position==0){
+					st =0;
+					run =false;
+					handler_timer.removeCallbacks(task);
+					//清除
+					topo_view.setNodes_topo(null);
+					topo_view.invalidate();
+				}else if(position == 6){
+					run = true;
+					st = 3600*24*30*12*30;
+					handler_timer.removeCallbacks(task);
+					try {
+						requestTopoData(st, ids);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}else{
+					switch (position) {
+					case 1:
+						st=5;
+						break;
+					case 2:
+						st =10;
+						break;
+					case 3:
+						st = 20;
+						break;
+					case 4:
+						st = 30;
+						break;
+					case 5:
+						st = 60;
+						break;
+					default:
+						break;
+					}
+					run=true;
+					handler_timer.removeCallbacks(task);
+					handler_timer.post(task);
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
+		});
+
 		return view;
 	}
 
@@ -58,90 +106,38 @@ public class FragmentTopo extends Fragment {
 	private Runnable task = new Runnable() {
 		public void run() {
 			if (run) {
-				handler_timer.postDelayed(this, update_time * 1000);// 启动之后每次的延时
-
-				initGetData();
+				try {
+					requestTopoData(st,ids);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				handler_timer.postDelayed(this, st * 1000);// 启动之后每次的延时
+				Log.v("Tag","刷一次"+" st="+st);
 			}
 
 		}
 	};
 
+
 	@Override
-	public void onStop() {
-		// TODO Auto-generated method stub
-		super.onStop();
+	public void onResume() {
+		super.onResume();
+		if(st!=0){
+			run = true;
+			handler_timer.post(task);
+		}
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
 		run = false;
 	}
 
-	public void initGetData() {
-		cleanCanvas();
-		new Thread() {
-
-			@Override
-			public void run() {
-				try {
-					nodes_topo = GetDataClass.requestTopoData(st);
-					if (nodes_topo != null) {
-						handler.sendEmptyMessage(0);
-
-					} else {
-						handler.sendEmptyMessage(1);
-					}
-				} catch (Exception e) {
-					Log.e("Tag", "進入socket異常");
-					handler.sendEmptyMessage(1);
-					e.printStackTrace();
-				}
-				// 消息传送：当本线程执行完时，发送消息，主线程handle再执行相应操作
-
-			}
-
-		}.start();
-	}
-
-	// 有消息传送出来时，执行主线程操作
-	private Handler handler = new Handler() {
-
-		@Override
-		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
-			switch (msg.what) {
-			case 0:
-				Log.v("Tag", "case 0");
-				Log.v("Tag", "" + nodes_topo[0].getId());
-				// TopoView.this.draw(canvas_topo);
-				try {
-					topo_view.setNodes_topo(nodes_topo);
-					topo_view.invalidate();// 重绘
-				} catch (Exception e) {
-					Log.e("Tag", "重绘");
-					e.printStackTrace();
-				}
-
-				break;
-			case 1:
-				Log.v("Tag", "case 1");
-				Toast.makeText(getActivity(), "连接失败，请检查网络或服务器",
-						Toast.LENGTH_LONG).show();
-				break;
-			default:
-				break;
-			}
-
-		}
-
-	};
-
-	@OnClick({ R.id.but_help_topo, R.id.but_set_topo })
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.but_help_topo:
 			startActivity(new Intent(getActivity(), DataHelpActivity.class));
-			break;
-
-		case R.id.but_set_topo:
-			startActivityForResult(new Intent(getActivity(),
-					TopoSetActivity.class), 1);
 			break;
 
 		default:
@@ -149,46 +145,60 @@ public class FragmentTopo extends Fragment {
 		}
 
 	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Bundle bundle = new Bundle();
-		run = true;
-		// 最新查询设置返回数据
-		if (requestCode == 1 && resultCode == 2) {
-
-			bundle = data.getExtras();
-			st = bundle.getString("st");
-			isauto = bundle.getBoolean("isauto");
-			update_time = bundle.getInt("update_time");
-			if (isauto) {
-				Log.e("Tag", "进入自动");
-				handler_timer.post(task);
-				info_display.setVisibility(View.VISIBLE);
-				info_display.setText("每隔" + update_time + "s更新一次");
-			} else {
-				Log.e("Tag", "进入手动");
-				initGetData();
-				info_display.setVisibility(View.GONE);
-			}
-		}
-	}
-
-	public void cleanCanvas() {
-		nodes_topo = null;
-		topo_view.setNodes_topo(nodes_topo);
-		topo_view.invalidate();
-	}
-
-	/*
-	 * @Override public void setMenuVisibility(boolean menuVisible) {
-	 * super.setMenuVisibility(menuVisible); Log.e("Tag", "" + menuVisible); if
-	 * (menuVisible) { run = true; if (isauto) { handler_timer.post(task); } }
-	 * else { run = false; }
-	 * 
-	 * if (this.getView() != null) this.getView() .setVisibility(menuVisible ?
-	 * View.VISIBLE : View.GONE); }
+	
+	/**
+	 * 获取网络拓扑数据
+	 * @param st
+	 * @param nodeId
+	 * @return
+	 * @throws Exception
 	 */
+	public void requestTopoData(final int st, final int[] nodeId) throws Exception {
+		StringRequest stringRequest = new StringRequest(Method.POST,Constants.NEWDATA_REQUEST,
+				new Response.Listener<String>() {
+					@Override
+					public void onResponse(String response) {
+						//UI线程处理数据
+						Gson gson = new Gson();
+						//Json解析数据
+						ResponseMsg responseMsg = gson.fromJson(response, ResponseMsg.class);
+						try {
+							//清除
+							topo_view.setNodes_topo(null);
+							topo_view.invalidate();
+							// 重绘
+							topo_view.setNodes_topo(responseMsg.getData());
+							topo_view.invalidate();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}, new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						Log.e("TAG", error.getMessage(), error);
+					}
+				}){
+			@Override
+			protected Map<String, String> getParams() throws AuthFailureError {
+				Map<String,String> map = new HashMap<String, String>();
+				StringBuffer sb = new StringBuffer();
+				for (int i = 0; i < nodeId.length; i++) {
+					if(i!=0){
+						sb.append("#"+nodeId[i]);
+					}else{
+						sb.append(nodeId[i]);
+					}
+				}
+				map.put("nodeIds",new String(sb));
+				map.put("startTime", String.valueOf(System.currentTimeMillis()-st*1000));
+				return map;
+			}
+		};
+		stringRequest.setTag("requestAllNewData");
+		MyApplication.getHttpQueues().add(stringRequest);
+	}
+
 	@Override
 	public void setMenuVisibility(boolean menuVisible) {
 		super.setMenuVisibility(menuVisible);
