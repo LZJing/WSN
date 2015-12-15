@@ -8,17 +8,21 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
+
+import com.buaa.sensory.wsn_dr.LoginActivity;
 import com.buaa.sensory.wsn_dr.R;
+import com.buaa.sensory.wsn_dr.Toolkits.ToolKits;
 import com.buaa.sensory.wsn_dr.activity.AboutActivity;
 import com.buaa.sensory.wsn_dr.activity.ContactUsActivity;
 import com.buaa.sensory.wsn_dr.activity.ExplainActivity;
-import com.buaa.sensory.wsn_dr.activity.LoginActivity;
 
 public class FragmentMore extends Fragment implements OnClickListener{
 	private Button change_user;
 	private Button explain;
 	private Button contact_us;
 	private Button about;
+	private TextView name;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -32,6 +36,8 @@ public class FragmentMore extends Fragment implements OnClickListener{
 		contact_us.setOnClickListener(this);
 		about = (Button) view.findViewById(R.id.about);
 		about.setOnClickListener(this);
+		name = (TextView) view.findViewById(R.id.username);
+		name.setText(ToolKits.fetchString(getActivity(), "name", "Î´µÇÂ¼"));
 		return view;
 	}
 

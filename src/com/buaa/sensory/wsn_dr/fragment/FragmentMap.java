@@ -203,7 +203,7 @@ public class FragmentMap extends Fragment implements OnMarkerClickListener,
 			ids[i] =ids[i-1]+1;
 		}
 		try {
-			requestAllNewData("0", ids);
+			requestAllNewData(String.valueOf(System.currentTimeMillis()-1000*3600*24*2), ids);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

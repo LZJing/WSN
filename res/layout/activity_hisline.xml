@@ -12,7 +12,7 @@
         android:orientation="horizontal" >
 
 	     <TextView
-	         android:id="@+id/help_back"
+	         android:id="@+id/back_hisline"
 	         android:layout_width="wrap_content"
 	         android:layout_height="40dp"
 	         android:background="@drawable/but_activate_bg"
@@ -29,22 +29,60 @@
             android:layout_gravity="center|center_horizontal"
             android:layout_marginLeft="50dp"
             android:gravity="center_horizontal"
-            android:text="历史数据"
+            android:text="数据曲线"
             android:textColor="@color/white"
             android:textSize="20sp" />
 
         
 
     </LinearLayout>
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="节点号：1" />
-    <com.buaa.sensory.wsn_dr.entity.HisLineView 
+
+	<LinearLayout
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content" 
+	    android:layout_gravity="center_vertical|center_horizontal"
+	    android:orientation="horizontal">
+
+		<TextView
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="监测量" 
+		    android:textSize="16sp"/>
+		<Spinner 
+            android:id="@+id/spinner_variate_hisline"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:entries="@array/variate"
+            />
+		<TextView
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="监测" 
+		    android:textSize="16sp"/>
+		<Spinner 
+            android:id="@+id/spinner_time_hisline"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:entries="@array/time"
+            />
+		<TextView
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="更新" 
+		    android:textSize="16sp"/>
+		<Spinner 
+            android:id="@+id/spinner_update_hisline"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:entries="@array/ut"
+            />
+
+	</LinearLayout>
+    <com.buaa.sensory.wsn_dr.view.HisLineView 
         android:id="@+id/hislineview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
         />
 
 </LinearLayout>

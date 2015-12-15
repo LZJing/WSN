@@ -7,6 +7,9 @@ public class Constants {
 	public static final String NEWDATA_REQUEST="http://192.168.1.221:8080/JavaWeb/nodedata/newdata";
 	public static final String HISDATA_REQUEST="http://192.168.1.221:8080/JavaWeb/nodedata/hisdata";
 	public static final String GPSDATA_REQUEST="http://192.168.1.221:8080/JavaWeb/nodedata/gpsdata";
+	public static final String Login_REQUEST="http://192.168.1.221:8080/JavaWeb/user/login";
+	public static final String TYPE_REQUEST="http://192.168.1.221:8080/JavaWeb/move/type";
+	public static final String CHANGETYPE_REQUEST="http://192.168.1.221:8080/JavaWeb/move/changetype";
 
 	public static final int ERROR = 1001;// Õ¯¬Á“Ï≥£
 	public static final int ROUTE_START_SEARCH = 2000;

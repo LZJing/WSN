@@ -13,7 +13,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.buaa.sensory.wsn_dr.activity.LoginActivity;
 import com.buaa.sensory.wsn_dr.adapter.GuideAdapter;
 
 public class WhatsnewActivity extends Activity {

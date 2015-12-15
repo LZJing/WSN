@@ -8,7 +8,6 @@ import android.os.Message;
 import android.view.Window;
 
 import com.buaa.sensory.wsn_dr.Toolkits.ToolKits;
-import com.buaa.sensory.wsn_dr.activity.LoginActivity;
 
 public class WelcomeActivity extends Activity {
 
@@ -25,10 +24,8 @@ public class WelcomeActivity extends Activity {
 			public boolean handleMessage(Message msg) {
 				if (!ToolKits.fetchBooble(WelcomeActivity.this, IS_FIRST, false)) {
 					Intent intent = new Intent();
-					intent.setClass(WelcomeActivity.this,
-							WhatsnewActivity.class);
+					intent.setClass(WelcomeActivity.this,WhatsnewActivity.class);
 					startActivity(intent);
-
 				} else {
 					Intent intent = new Intent();
 					intent.setClass(WelcomeActivity.this, LoginActivity.class);

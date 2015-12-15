@@ -8,14 +8,18 @@ import java.util.Map;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Response;
@@ -25,6 +29,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.buaa.sensory.wsn_dr.MyApplication;
 import com.buaa.sensory.wsn_dr.R;
 import com.buaa.sensory.wsn_dr.Toolkits.Calculate;
+import com.buaa.sensory.wsn_dr.activity.DataHelpActivity;
+import com.buaa.sensory.wsn_dr.activity.HisLineActivity;
 import com.buaa.sensory.wsn_dr.entity.Constants;
 import com.buaa.sensory.wsn_dr.entity.DateAndTime;
 import com.buaa.sensory.wsn_dr.model.GPSData;
@@ -38,6 +44,8 @@ public class MyAdapter extends BaseAdapter {
 	private LayoutInflater mInflater;
 	private Context mcontext;
 	private List<NodeData> list;
+	private int nodeId;
+
 
 	public MyAdapter(Context context, List<NodeData> nodes) {
 		this.mInflater = LayoutInflater.from(context);
@@ -89,7 +97,18 @@ public class MyAdapter extends BaseAdapter {
 			holder.node_GPS_lon.setText("光强");
 			holder.node_GPS_lat.setText("温度");
 			holder.humidity.setText("湿度");
-			holder.viewBtn.setBackgroundResource(R.color.white);
+//			holder.viewBtn.setBackgroundResource(R.color.white);
+			holder.viewBtn.setText("曲线");
+			holder.viewBtn.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					
+					Toast.makeText(mcontext, "you touch me", Toast.LENGTH_SHORT).show();
+					
+				}
+			});
+			
 			
 		} else {
 			holder.node_id.setText(String.valueOf(list.get(position-1).getNodeId()));
@@ -100,11 +119,13 @@ public class MyAdapter extends BaseAdapter {
 			holder.viewBtn.setBackgroundResource(R.color.them_blue);
 
 			holder.viewBtn.setId(position);// 将位置设置为按键的ID
-			holder.viewBtn.setOnClickListener(new View.OnClickListener() {
+			holder.viewBtn.setText("详细");
+			holder.viewBtn.setOnClickListener(new OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
 					try {
+						nodeId = list.get(v.getId() - 1).getNodeId();
 						requestGPSData(list.get(v.getId() - 1).getGpsId());
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -124,6 +145,17 @@ public class MyAdapter extends BaseAdapter {
 				.setPositiveButton("确定", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
+					}
+				})
+				.setNegativeButton("查看曲线", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Intent intent = new Intent(mcontext, HisLineActivity.class);
+						Bundle bundle = new Bundle();
+						bundle.putInt("nodeId", nodeId);
+						intent.putExtras(bundle);
+						mcontext.startActivity(intent);
 					}
 				}).show();
 
